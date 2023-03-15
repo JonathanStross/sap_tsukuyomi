@@ -81,7 +81,14 @@ def checkStdUsers():
                     'sysnr': '00'
                 }
 
-print('Tsukuyomi')
+print("""  _____          _                                _ 
+ |_   _|__ _   _| | ___   _ _   _  ___  _ __ ___ (_)
+   | |/ __| | | | |/ / | | | | | |/ _ \| '_ ` _ \| |
+   | |\__ \ |_| |   <| |_| | |_| | (_) | | | | | | |
+   |_||___/\__,_|_|\_\\__,_|\__, |\___/|_| |_| |_|_|
+                            |___/                   """)
+print("Reading SAP Sysnr, SAP Clients and active SAP Standard Users.")
+print("Target IP: ", args.target, "\t", "Verbose mode: ", str(args.verbose))
 
 if args.target:
     target = args.target
