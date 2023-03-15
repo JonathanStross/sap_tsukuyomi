@@ -1,10 +1,8 @@
 import argparse
 import csv
 from tqdm import tqdm
-
-
-import pyrfc
 from pyrfc import Connection
+import pyrfc
 
 
 parser = argparse.ArgumentParser(
