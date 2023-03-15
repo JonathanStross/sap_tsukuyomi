@@ -4,4 +4,4 @@
       | |\__ \ |_| |   <| |_| | |_| | (_) | | | | | | |
       |_||___/\__,_|_|\_\\__,_|\__, |\___/|_| |_| |_|_|
                                |___/                   
-tsukuyomi - moon reading god. In this case systemnumber, client and standard user "reading" with pysap.
+tsukuyomi - moon reading god. In this case systemnumber, client and standard user "reading" with pyrfc.
