@@ -5,3 +5,6 @@
       |_||___/\__,_|_|\_\\__,_|\__, |\___/|_| |_| |_|_|
                                |___/                   
 tsukuyomi - moon reading god. In this case systemnumber, client and standard user "reading" with pysap.
+# SETUP
+# EXECUTION
+

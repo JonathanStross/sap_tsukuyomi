@@ -1,5 +1,7 @@
 import argparse
 import csv
+import re
+
 from tqdm import tqdm
 from pyrfc import Connection
 import pyrfc
@@ -39,12 +41,12 @@ def checkClients():
             try:
                 conn = Connection(**connection_params)
                 response = conn.call('RFC_SYSTEM_INFO')
-                print(response)
+                #print(response)
             except pyrfc.LogonError as ex:
                 if ex.message == 'Name or password is incorrect (repeat logon)':
                     activeClients.append(client[0])
                     if args.verbose:
-                        print('Client detected on: ', client[0])
+                        print('\nClient detected on: ', client[0])
                 else:
                     if args.verbose:
                         print(ex.message)
@@ -54,32 +56,77 @@ def checkClients():
         print("Active clients:")
         for cli in activeClients:
             print('Active client on: ', cli)
+            storeActiveClients()
         return True
     else:
         return False
 
 def checkStdUsers():
+    global activeUsers
     global target
     global activeClients
     with open('standardusers.csv') as users_csv:
         csv_reader_users = csv.reader(users_csv, delimiter='\n')
         for rows in csv_reader_users:
             credentials = rows[0].split(';')
-            clients = credentials[2].split(',')
-
+            client = credentials[2]
             #in case of * exists, check all mentioned and all active
-            if '*' in clients:
-                for cli in activeClients:
-                    pass
-            #check only active clients
-            for cli in clients:
+            for cli in activeClients:
                 connection_params = {
                     'user': credentials[0],
                     'passwd': credentials[1],
-                    'ashost': target,
-                    'client': cli,
-                    'sysnr': '00'
-                }
+                    'ashost': cli['ip'],
+                    'sysnr': '00',
+                    'client': cli['client']
+                    }
+                try:
+                    print("\n-------------------Trying logon-------------------")
+                    print("Client: ", cli['client'])
+                    print("User: ", credentials[0])
+                    print("Password: ", credentials[1])
+                    conn = Connection(**connection_params)
+                    response = conn.call('RFC_SYSTEM_INFO')
+                    print('\nUser/Password FOUND:\n', credentials[0], ":", credentials[1], "on client: ",
+                              cli)
+                    activeUsers.append(credentials[0] + "," + credentials[1] + "," + cli['client'])
+                    print("\n-------------------------------------------------\n")
+                except pyrfc.LogonError as ex:
+                    if ex.message == 'Name or password is incorrect (repeat logon)':
+                        print("Login NOT possible with: ", credentials[0], ", ", credentials[1], ", ", cli)
+
+
+def lockUsers():
+    pass
+
+def storeActiveClients():
+    global target
+    global activeClients
+    f = open('foundclients.csv', 'w+')
+    writer = csv.writer(f)
+    for client in activeClients:
+        writer.writerow(target + ';' + client)
+    f.close()
+
+def listActiveClients():
+    global activeClients
+    print("IP:\tClient:")
+    for client in activeClients:
+        print(client['ip'], "\t", client['client'])
+
+def loadActiveClients():
+    global activeClients
+    f = open('foundclients.csv', 'r')
+    csvreader = csv.reader(f, delimiter=';')
+    for row in csvreader:
+        client = row[1]
+        ip = row[0]
+        client = {
+            'ip': ip,
+            'client': client
+        }
+        activeClients.append(client)
+    f.close()
+
 
 print("""  _____          _                                _ 
  |_   _|__ _   _| | ___   _ _   _  ___  _ __ ___ (_)
@@ -97,10 +144,10 @@ else:
     end = True
 
 activeClients = []
+activeUsers = []
 
-checkClients()
-#if not end:
-#    if checkClients():
-#        checkStdUsers()
 
-#checkStdUsers()
+#checkClients() #check
+loadActiveClients() #check
+listActiveClients() #check
+checkStdUsers()
